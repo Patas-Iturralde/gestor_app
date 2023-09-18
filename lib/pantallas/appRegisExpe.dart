@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:gestor_app/pantallas/appcabeceras.dart';
 import 'package:gestor_app/pantallas/provaider/appDirecciones.dart';
 import 'package:gestor_app/pantallas/provaider/funciones.dart';
@@ -14,11 +15,35 @@ class appRegisExpe extends StatefulWidget {
   State<appRegisExpe> createState() => _appRegisExpeState();
 }
 
+const List<String> list = <String>[
+  'Ruptura de calzado',
+  'Albergue canino',
+  'Sugerencias',
+  'Quejas'
+];
+
+bool _validateEmail(String email) {
+  final emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
+  return emailRegex.hasMatch(email);
+}
+
+bool _validatePhoneNumber(String phoneNumber) {
+  // Expresión regular para validar números de teléfono (solo números)
+  final phoneRegex = RegExp(r'^\d+$');
+  return phoneRegex.hasMatch(phoneNumber);
+}
+
+bool _validateMessage(String message) {
+  return message.isNotEmpty;
+}
+
 class _appRegisExpeState extends State<appRegisExpe> {
   final cedula = TextEditingController();
   final correo = TextEditingController();
   final celu = TextEditingController();
   final msgSoli = TextEditingController();
+  bool blockCedula = true;
+  String dropdownValue = list.first;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +65,7 @@ class _appRegisExpeState extends State<appRegisExpe> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
                   child: TextField(
+                    maxLength: 10,
                     controller: cedula,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
@@ -57,6 +83,7 @@ class _appRegisExpeState extends State<appRegisExpe> {
                         ),
                       ),
                     ),
+                    enabled: blockCedula,
                   ),
                 ),
                 const VerticalDivider(
@@ -81,6 +108,7 @@ class _appRegisExpeState extends State<appRegisExpe> {
                         alertaProgreso().alertas(context, 'Cedula Incorrecta',
                             'verifique Porfavor', 1);
                       } else {
+                        blockCedula = false;
                         Navigator.of(context).pop();
                         context.read<appdireciones>().asignarNomb(nombComple);
                       }
@@ -137,6 +165,7 @@ class _appRegisExpeState extends State<appRegisExpe> {
                       ),
                     ),
                   ),
+                  enabled: false,
                 ),
               ],
             ),
@@ -173,6 +202,7 @@ class _appRegisExpeState extends State<appRegisExpe> {
             Column(
               children: [
                 TextField(
+                  maxLength: 10,
                   keyboardType: TextInputType.number,
                   controller: celu,
 
@@ -226,6 +256,28 @@ class _appRegisExpeState extends State<appRegisExpe> {
               ],
             ),
             const Divider(
+              height: 10.0,
+              color: Colors.transparent,
+            ),
+            Column(
+              children: [
+                DropdownMenu<String>(
+                  initialSelection: list.first,
+                  onSelected: (String? value) {
+                    // This is called when the user selects an item.
+                    setState(() {
+                      dropdownValue = value!;
+                    });
+                  },
+                  dropdownMenuEntries:
+                      list.map<DropdownMenuEntry<String>>((String value) {
+                    return DropdownMenuEntry<String>(
+                        value: value, label: value);
+                  }).toList(),
+                )
+              ],
+            ),
+            const Divider(
               height: 20.0,
               color: Colors.transparent,
             ),
@@ -260,17 +312,38 @@ class _appRegisExpeState extends State<appRegisExpe> {
                   width: MediaQuery.of(context).size.width * 0.25,
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      alertaProgreso().progreso(context);
-                      var datVerificador = await appvalidarAcceso().regisExpe(
-                          cedula.value.text,
-                          correo.text,
-                          celu.value.text,
-                          msgSoli.text);
-                      var verificador = datVerificador[0].expediente;
-                      Navigator.of(context).pop();
+                      if (_validatePhoneNumber(celu.text) &&
+                          _validateMessage(msgSoli.text)) {
+                        if (_validateEmail(correo.text)) {
+                          alertaProgreso().progreso(context);
+                          var datVerificador = await appvalidarAcceso()
+                              .regisExpe(cedula.value.text, correo.text,
+                                  celu.value.text, msgSoli.text);
+                          var verificador = datVerificador[0].expediente;
+                          Navigator.of(context).pop();
 
-                      alertaProgreso()
-                          .alertas(context, 'Num Expediente', verificador, 2);
+                          alertaProgreso().alertas(
+                              context, 'Num Expediente', verificador, 2);
+                          setState(() {
+                            cedula.clear();
+                            blockCedula = true;
+                            context.read<appdireciones>().asignarNomb('');
+                            correo.clear();
+                            celu.clear();
+                            msgSoli.clear();
+                          });
+                        } else {
+                          alertaProgreso().alertas(
+                              context,
+                              'Correo electronico incorrecto',
+                              'Verifique Porfavor',
+                              1);
+                        }
+                      } else {
+                        alertaProgreso().alertas(context, 'Campos incompletos',
+                            'Verifique Porfavor', 1);
+                      }
+
                       /*
                       if (verificador == 0) {
                         Navigator.of(context).pop();

@@ -58,7 +58,7 @@ class AppvalidarAcceso extends ChangeNotifier {
   Future<List<Respuesta>> regisExpe(
       solicitante, pedido, fono, mail, codigo) async {
     final http.Response respuestaV = await http.get(Uri.parse(
-        'http://186.46.158.7/AppattCiu/Regis_Solicitudes.php?remitente=$solicitante&detaPedido=$pedido&celu=$fono&correo=$mail'));
+        'http://186.46.158.7/AppattCiu/Regis_Solicitudes.php?remitente=$solicitante&detaPedido=$pedido&celu=$fono&correo=$mail,&codtpo=$codigo'));
     List<Respuesta> datVali = [];
     if (respuestaV.statusCode == 200) {
       String cuerpo = utf8.decode(respuestaV.bodyBytes);

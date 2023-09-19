@@ -11,8 +11,8 @@ class valiCedula {
   valiCedula(this.codigo, this.completo);
 }
 
-class dat_expediente {
+class Respuesta {
   String expediente;
 
-  dat_expediente(this.expediente);
+  Respuesta(this.expediente);
 }

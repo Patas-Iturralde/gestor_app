@@ -1,9 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:gestor_app/modelos/denominacion.dart';
 import 'package:gestor_app/modelos/valiAcceso.dart';
 import 'package:http/http.dart' as http;
 
-class appvalidarAcceso {
+class AppvalidarAcceso extends ChangeNotifier {
+  bool isloading = false;
+
   /// String correo;
   ///String clave;
 
@@ -51,21 +55,40 @@ class appvalidarAcceso {
     }
   }
 
-  Future<List<dat_expediente>> regisExpe(
-      solicitante, pedido, fono, mail) async {
+  Future<List<Respuesta>> regisExpe(
+      solicitante, pedido, fono, mail, codigo) async {
     final http.Response respuestaV = await http.get(Uri.parse(
         'http://186.46.158.7/AppattCiu/Regis_Solicitudes.php?remitente=$solicitante&detaPedido=$pedido&celu=$fono&correo=$mail'));
-    List<dat_expediente> datVali = [];
+    List<Respuesta> datVali = [];
     if (respuestaV.statusCode == 200) {
       String cuerpo = utf8.decode(respuestaV.bodyBytes);
       final jsondataCed = jsonDecode(cuerpo);
       final datValidador = jsondataCed['respuesta'][0];
       datVali.add(
-        dat_expediente(datValidador['num_expediente']),
+        Respuesta(datValidador['num_expediente']),
       );
       return datVali;
     } else {
       throw Exception('fallo la conexion');
+    }
+  }
+
+  Future<List<RespuestaDenominacion>> denominacion() async {
+    try {
+      isloading = true;
+      final http.Response respuestaV = await http.get(
+        Uri.parse('http://186.46.158.7/AppattCiu/tpoSolicitud.php'),
+      );
+      if (respuestaV.statusCode == 200) {
+        String cuerpo = utf8.decode(respuestaV.bodyBytes);
+        final jsondataDen = jsonDecode(cuerpo);
+        final datDenominador = Denominacion.fromJson(jsondataDen);
+        return datDenominador.respuesta;
+      } else {
+        throw Exception('Fallo la conexión');
+      }
+    } catch (e) {
+      throw Exception('Fallo la conexión');
     }
   }
 }

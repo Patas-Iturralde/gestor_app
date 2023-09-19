@@ -18,7 +18,7 @@ class _appbienvenidaState extends State<appbienvenida> {
     Future.delayed(d, () {
       Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const appRegisExpe()),
+          MaterialPageRoute(builder: (context) => const AppRegisExpe()),
           (route) => false);
     });
   }

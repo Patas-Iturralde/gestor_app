@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestor_app/pantallas/provaider/appDirecciones.dart';
+import 'package:gestor_app/servicios/appvalidarAcceso.dart';
 import 'package:provider/provider.dart';
 import 'package:gestor_app/pantallas/appBienvenida.dart';
 import 'package:gestor_app/pantallas/appLogin.dart';
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => appdireciones()),
+        ChangeNotifierProvider(create: (_) => AppvalidarAcceso()),
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,

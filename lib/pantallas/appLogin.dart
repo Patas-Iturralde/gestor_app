@@ -119,7 +119,7 @@ class _apploginState extends State<applogin> {
               onPressed: () async {
                 alertaProgreso().progreso(context);
 
-                var _datAcceso = await appvalidarAcceso()
+                var _datAcceso = await AppvalidarAcceso()
                     .validarAcceso(correo.text, clave.text);
                 var validador = _datAcceso[0].stdoAcceso;
                 if (validador == '0') {

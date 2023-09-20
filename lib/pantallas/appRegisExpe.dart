@@ -1,3 +1,4 @@
+import 'dart:html' hide File;
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:gestor_app/pantallas/provaider/appDirecciones.dart';
 import 'package:gestor_app/servicios/appvalidarAcceso.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:dio/dio.dart';
 import '../ventasAlerta/alertaProgreso.dart';
 
 class AppRegisExpe extends StatefulWidget {
@@ -99,6 +100,33 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
     List<int> imageBytes = imageFile.readAsBytesSync();
     String base64Image = base64Encode(imageBytes);
     return base64Image;
+  }
+
+  Dio dio = new Dio();
+
+  Future<void> subir_imagen() async {
+    try {
+      String filename = imagen!.path.split('/').last;
+
+      FormData formData = new FormData.fromMap({
+        "cedula": cedula,
+        "correo": correo,
+        "celular": celu,
+        "mensaje": msgSoli,
+        "categoria": selectedItemId,
+        "file": await MultipartFile.fromFile(imagen!.path, filename: filename)
+      });
+
+      await dio.post( ,data: formData).then((value){
+        if(value.toString() == 1){
+          print("Datos cargados");
+        }else{
+          print("Error al subir");
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -329,29 +357,29 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                   ),
                   child: Center(
                     child: DropdownButton<String>(
-                  value: selectedItemId,
-  onChanged: (String? newValue) {
-    setState(() {
-      selectedItemId = newValue!;
-      print(selectedItemId);
-    });
-  },
-                  underline: Container(), // Quita la línea debajo del texto
-                  items: list.map((RespuestaDenominacion item) {
-                    return DropdownMenuItem<String>(
-                      value: item.id,
-                      child: Center(
-                        child: Text(
-                          item.denominacion,
-                          style: TextStyle(
-                            decoration: TextDecoration
-                                .none, // Quita la decoración de texto (en este caso, la línea debajo del texto)
+                      value: selectedItemId,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedItemId = newValue!;
+                          print(selectedItemId);
+                        });
+                      },
+                      underline: Container(), // Quita la línea debajo del texto
+                      items: list.map((RespuestaDenominacion item) {
+                        return DropdownMenuItem<String>(
+                          value: item.id,
+                          child: Center(
+                            child: Text(
+                              item.denominacion,
+                              style: TextStyle(
+                                decoration: TextDecoration
+                                    .none, // Quita la decoración de texto (en este caso, la línea debajo del texto)
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
                 const VerticalDivider(
@@ -490,7 +518,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       correo.clear();
                       celu.clear();
                       msgSoli.clear();
-                      
+
                       // Establecer en "predeterminado"
                     },
                     icon: const Icon(Icons.delete_outlined),
@@ -524,6 +552,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   msgSoli.text,
                                   selectedItemId);
                           var verificador = datVerificador[0].expediente;
+                          subir_imagen();
                           Navigator.of(context).pop();
 
                           alertaProgreso().alertas(
@@ -536,7 +565,6 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                             correo.clear();
                             celu.clear();
                             msgSoli.clear();
-                            
                           });
                         } else {
                           alertaProgreso().alertas(

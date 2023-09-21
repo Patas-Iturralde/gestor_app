@@ -548,6 +548,9 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       if (_validatePhoneNumber(celu.text) &&
                           _validateMessage(msgSoli.text)) {
                         if (_validateEmail(correo.text)) {
+                          if (base64Image == null){
+                            base64Image = " ";
+                          }
                           alertaProgreso().progreso(context);
                           var datVerificador = await AppvalidarAcceso()
                               .regisExpe(

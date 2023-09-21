@@ -1,8 +1,8 @@
-
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:gestor_app/modelos/denominacion.dart';
+import 'package:gestor_app/pantallas/appSalida.dart';
 import 'package:gestor_app/pantallas/appcabeceras.dart';
 import 'package:gestor_app/pantallas/provaider/appDirecciones.dart';
 import 'package:gestor_app/servicios/appvalidarAcceso.dart';
@@ -24,7 +24,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   final celu = TextEditingController();
   final msgSoli = TextEditingController();
   final picker = ImagePicker();
-  File? imagen; 
+  File? imagen;
   var pickedfile;
   String selectedItemId = 'Seleccione una opción';
   String? base64Image;
@@ -65,8 +65,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   }
 
   Future<void> _takePicture() async {
-    final pickedFile =
-        await picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() {
         imagen = File(pickedFile.path);
@@ -80,8 +79,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   }
 
   Future<void> _selectPicture() async {
-    final pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         imagen = File(pickedFile.path);
@@ -129,8 +127,6 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
       print(e.toString());
     }
   }*/
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -606,7 +602,14 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.25,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                appsalida()), // AppSalida() es la pantalla que quieres mostrar
+                      );
+                    },
                     icon: const Icon(Icons.power_settings_new),
                     label: const Text(
                       "Salir",

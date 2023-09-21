@@ -1,4 +1,4 @@
-import 'dart:html' hide File;
+
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -24,9 +24,10 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   final celu = TextEditingController();
   final msgSoli = TextEditingController();
   final picker = ImagePicker();
-  File? imagen; // Cambio a File? para permitir null
+  File? imagen; 
   var pickedfile;
   String selectedItemId = 'Seleccione una opción';
+  String? base64Image;
 
   bool blockCedula = true;
 
@@ -65,13 +66,13 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
 
   Future<void> _takePicture() async {
     final pickedFile =
-        await picker.pickImage(source: ImageSource.camera, imageQuality: 1);
+        await picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       setState(() {
         imagen = File(pickedFile.path);
       });
       // Convierte la imagen en una cadena Base64
-      String? base64Image = imageToBase64(imagen);
+      base64Image = imageToBase64(imagen);
 
       // Ahora puedes usar base64Image según tus necesidades
       print("Imagen en Base64: $base64Image");
@@ -80,13 +81,13 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
 
   Future<void> _selectPicture() async {
     final pickedFile =
-        await picker.pickImage(source: ImageSource.gallery, imageQuality: 1);
+        await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         imagen = File(pickedFile.path);
       });
       // Convierte la imagen en una cadena Base64
-      String? base64Image = imageToBase64(imagen);
+      base64Image = imageToBase64(imagen);
 
       // Ahora puedes usar base64Image según tus necesidades
       print("Imagen en Base64: $base64Image");
@@ -102,9 +103,9 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
     return base64Image;
   }
 
-  Dio dio = new Dio();
+  //Dio dio = new Dio();
 
-  Future<void> subir_imagen() async {
+  /*Future<void> subir_imagen() async {
     try {
       String filename = imagen!.path.split('/').last;
 
@@ -127,7 +128,9 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
     } catch (e) {
       print(e.toString());
     }
-  }
+  }*/
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -426,6 +429,10 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   },
                                   child: Container(
                                     padding: EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                width: 1, color: Colors.grey))),
                                     child: Row(
                                       children: [
                                         Expanded(
@@ -445,8 +452,10 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   },
                                   child: Container(
                                     padding: EdgeInsets.all(20),
-                                    decoration:
-                                        BoxDecoration(color: Colors.deepOrange),
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            bottom: BorderSide(
+                                                width: 1, color: Colors.grey))),
                                     child: Row(
                                       children: [
                                         Expanded(
@@ -454,7 +463,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                           "Quitar foto",
                                           style: TextStyle(fontSize: 16),
                                         )),
-                                        Icon(Icons.image, color: Colors.blue)
+                                        Icon(Icons.delete, color: Colors.blue)
                                       ],
                                     ),
                                   ),
@@ -550,9 +559,10 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   correo.text,
                                   celu.value.text,
                                   msgSoli.text,
-                                  selectedItemId);
+                                  selectedItemId,
+                                  base64Image);
                           var verificador = datVerificador[0].expediente;
-                          subir_imagen();
+                          //subir_imagen();
                           Navigator.of(context).pop();
 
                           alertaProgreso().alertas(

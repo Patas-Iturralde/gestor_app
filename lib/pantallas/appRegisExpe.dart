@@ -30,6 +30,11 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   String? base64Image;
 
   bool blockCedula = true;
+  bool blockCorreo = false;
+  bool blockCelular = false;
+  bool blockMensaje = false;
+  bool blockComboBox = false;
+  bool blockFoto = false;
 
   @override
   void initState() {
@@ -38,6 +43,32 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   }
 
   List<RespuestaDenominacion> list = [];
+
+  Future<void> showLoadingDialog(BuildContext context) async {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Impide que el diálogo se cierre al tocar fuera de él
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(), // Un indicador de carga
+            SizedBox(height: 16.0),
+            Text("Subiendo foto..."),
+          ],
+        ),
+      );
+    },
+  );
+
+  // Espera durante 5 segundos
+  await Future.delayed(Duration(seconds: 2));
+
+  // Cierra el diálogo
+  Navigator.of(context).pop();
+}
+
 
   Future<void> getDenominaciones() async {
     final AppvalidarAcceso appvalidarAcceso = AppvalidarAcceso();
@@ -70,6 +101,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
       setState(() {
         imagen = File(pickedFile.path);
       });
+      showLoadingDialog(context);
       // Convierte la imagen en una cadena Base64
       base64Image = imageToBase64(imagen);
 
@@ -84,6 +116,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
       setState(() {
         imagen = File(pickedFile.path);
       });
+      showLoadingDialog(context);
       // Convierte la imagen en una cadena Base64
       base64Image = imageToBase64(imagen);
 
@@ -198,6 +231,13 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   'Cedula Incorrecta', 'Verifique Porfavor', 1);
                             } else {
                               blockCedula = false;
+                              blockCorreo = true;
+                              blockCelular = true;
+                              blockMensaje = true;
+                              blockComboBox = true;
+                              blockFoto = true;
+                              blockComboBox = true;
+                              blockFoto = true;
                               Navigator.of(context).pop();
                               context
                                   .read<appdireciones>()
@@ -279,6 +319,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       ),
                     ),
                   ),
+                  enabled: blockCorreo,
                 ),
               ],
             ),
@@ -307,6 +348,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       ),
                     ),
                   ),
+                  enabled: blockCelular,
                 ),
               ],
             ),
@@ -337,6 +379,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       ),
                     ),
                   ),
+                  enabled: blockMensaje,
                 ),
               ],
             ),
@@ -357,12 +400,14 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                   child: Center(
                     child: DropdownButton<String>(
                       value: selectedItemId,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedItemId = newValue!;
-                          print(selectedItemId);
-                        });
-                      },
+                      onChanged: blockComboBox
+                          ? (String? newValue) {
+                              setState(() {
+                                selectedItemId = newValue!;
+                                print(selectedItemId);
+                              });
+                            }
+                          : null,
                       underline: Container(), // Quita la línea debajo del texto
                       items: list.map((RespuestaDenominacion item) {
                         return DropdownMenuItem<String>(
@@ -385,114 +430,123 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                   width: 10.0,
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          contentPadding: EdgeInsets.all(0),
-                          content: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                InkWell(
-                                  onTap: () async {
-                                    _takePicture();
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                                width: 1, color: Colors.grey))),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: Text(
-                                          "Tomar una foto",
-                                          style: TextStyle(fontSize: 16),
-                                        )),
-                                        Icon(Icons.camera_alt,
-                                            color: Colors.blue)
-                                      ],
-                                    ),
+                  onPressed: blockFoto
+                      ? () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                contentPadding: EdgeInsets.all(0),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      InkWell(
+                                        onTap: () async {
+                                          _takePicture();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                                  bottom: BorderSide(
+                                                      width: 1,
+                                                      color: Colors.grey))),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Text(
+                                                "Tomar una foto",
+                                                style: TextStyle(fontSize: 16),
+                                              )),
+                                              Icon(Icons.camera_alt,
+                                                  color: Colors.blue)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          _selectPicture();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                                  bottom: BorderSide(
+                                                      width: 1,
+                                                      color: Colors.grey))),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Text(
+                                                "Seleccionar una foto",
+                                                style: TextStyle(fontSize: 16),
+                                              )),
+                                              Icon(Icons.image,
+                                                  color: Colors.blue)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            imagen = null;
+                                            Navigator.of(context).pop();
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                              border: Border(
+                                                  bottom: BorderSide(
+                                                      width: 1,
+                                                      color: Colors.grey))),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Text(
+                                                "Quitar foto",
+                                                style: TextStyle(fontSize: 16),
+                                              )),
+                                              Icon(Icons.delete,
+                                                  color: Colors.blue)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(20),
+                                          decoration:
+                                              BoxDecoration(color: Colors.red),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  child: Text(
+                                                "Atras",
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.white),
+                                                textAlign: TextAlign.center,
+                                              )),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    _selectPicture();
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                                width: 1, color: Colors.grey))),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: Text(
-                                          "Seleccionar una foto",
-                                          style: TextStyle(fontSize: 16),
-                                        )),
-                                        Icon(Icons.image, color: Colors.blue)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    imagen = null;
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        border: Border(
-                                            bottom: BorderSide(
-                                                width: 1, color: Colors.grey))),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: Text(
-                                          "Quitar foto",
-                                          style: TextStyle(fontSize: 16),
-                                        )),
-                                        Icon(Icons.delete, color: Colors.blue)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(20),
-                                    decoration:
-                                        BoxDecoration(color: Colors.red),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: Text(
-                                          "Atras",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white),
-                                          textAlign: TextAlign.center,
-                                        )),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                              );
+                            },
+                          );
+                        }
+                      : null,
                   icon: const Icon(Icons.camera),
                   label: Text("Foto"),
                   style: ElevatedButton.styleFrom(
@@ -518,6 +572,13 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                     onPressed: () {
                       cedula.clear();
                       blockCedula = true;
+                      blockCorreo = false;
+                      blockCelular = false;
+                      blockMensaje = false;
+                      blockComboBox = false;
+                      blockFoto = false;
+                      blockComboBox = false;
+                      blockFoto = false;
                       context.read<appdireciones>().asignarNomb('');
                       imagen = null;
                       correo.clear();
@@ -548,7 +609,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       if (_validatePhoneNumber(celu.text) &&
                           _validateMessage(msgSoli.text)) {
                         if (_validateEmail(correo.text)) {
-                          if (base64Image == null){
+                          if (base64Image == null) {
                             base64Image = " ";
                           }
                           alertaProgreso().progreso(context);
@@ -569,6 +630,13 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                           setState(() {
                             cedula.clear();
                             blockCedula = true;
+                            blockCorreo = false;
+                            blockCelular = false;
+                            blockMensaje = false;
+                            blockComboBox = false;
+                            blockFoto = false;
+                            blockComboBox = false;
+                            blockFoto = false;
                             context.read<appdireciones>().asignarNomb('');
                             imagen = null;
                             correo.clear();

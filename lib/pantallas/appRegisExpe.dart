@@ -45,30 +45,30 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
   List<RespuestaDenominacion> list = [];
 
   Future<void> showLoadingDialog(BuildContext context) async {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Impide que el diálogo se cierre al tocar fuera de él
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(), // Un indicador de carga
-            SizedBox(height: 16.0),
-            Text("Subiendo foto..."),
-          ],
-        ),
-      );
-    },
-  );
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // Impide que el diálogo se cierre al tocar fuera de él
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(), // Un indicador de carga
+              SizedBox(height: 16.0),
+              Text("Subiendo foto..."),
+            ],
+          ),
+        );
+      },
+    );
 
-  // Espera durante 5 segundos
-  await Future.delayed(Duration(seconds: 2));
+    // Espera durante 5 segundos
+    await Future.delayed(Duration(seconds: 2));
 
-  // Cierra el diálogo
-  Navigator.of(context).pop();
-}
-
+    // Cierra el diálogo
+    Navigator.of(context).pop();
+  }
 
   Future<void> getDenominaciones() async {
     final AppvalidarAcceso appvalidarAcceso = AppvalidarAcceso();
@@ -167,7 +167,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
         Provider.of<AppvalidarAcceso>(context, listen: false);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         reverse: true,
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
@@ -244,10 +244,15 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                                   .asignarNomb(nombComple);
                             }
                           },
-                          icon: const Icon(Icons.fingerprint),
-                          label: const Text(
-                            "Validar",
-                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          icon: const Icon(Icons.key),
+                          label: const FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Text(
+                              "Validar",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white), // Tamaño de fuente fijo
+                            ),
                           ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
@@ -389,170 +394,202 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
             ),
             Row(
               children: [
-                Container(
-                  width: 250, // Establece el ancho deseado
-                  padding: EdgeInsets.all(10), // Agrega relleno para los bordes
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black), // Agrega bordes
-                    borderRadius:
-                        BorderRadius.circular(5), // Aplica bordes redondeados
-                  ),
-                  child: Center(
-                    child: DropdownButton<String>(
-                      value: selectedItemId,
-                      onChanged: blockComboBox
-                          ? (String? newValue) {
-                              setState(() {
-                                selectedItemId = newValue!;
-                                print(selectedItemId);
-                              });
-                            }
-                          : null,
-                      underline: Container(), // Quita la línea debajo del texto
-                      items: list.map((RespuestaDenominacion item) {
-                        return DropdownMenuItem<String>(
-                          value: item.id,
-                          child: Center(
-                            child: Text(
-                              item.denominacion,
-                              style: TextStyle(
-                                decoration: TextDecoration
-                                    .none, // Quita la decoración de texto (en este caso, la línea debajo del texto)
+                Flexible(
+                  flex: 2, // Este widget tomará 2/3 del espacio disponible
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Center(
+                      child: DropdownButton<String>(
+                        value: selectedItemId,
+                        onChanged: blockComboBox
+                            ? (String? newValue) {
+                                setState(() {
+                                  selectedItemId = newValue!;
+                                  print(selectedItemId);
+                                });
+                              }
+                            : null,
+                        underline: Container(),
+                        items: list.map((RespuestaDenominacion item) {
+                          return DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.fitWidth,
+                                child: Text(
+                                  item.denominacion,
+                                  style: TextStyle(
+                                    fontSize: 13, // Tamaño de fuente fijo
+                                    decoration: TextDecoration.none,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
-                const VerticalDivider(
-                  width: 10.0,
-                ),
-                ElevatedButton.icon(
-                  onPressed: blockFoto
-                      ? () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                contentPadding: EdgeInsets.all(0),
-                                content: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      InkWell(
-                                        onTap: () async {
-                                          _takePicture();
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                              border: Border(
-                                                  bottom: BorderSide(
-                                                      width: 1,
-                                                      color: Colors.grey))),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Text(
-                                                "Tomar una foto",
-                                                style: TextStyle(fontSize: 16),
-                                              )),
-                                              Icon(Icons.camera_alt,
-                                                  color: Colors.blue)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          _selectPicture();
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                              border: Border(
-                                                  bottom: BorderSide(
-                                                      width: 1,
-                                                      color: Colors.grey))),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
-                                                  child: Text(
-                                                "Seleccionar una foto",
-                                                style: TextStyle(fontSize: 16),
-                                              )),
-                                              Icon(Icons.image,
-                                                  color: Colors.blue)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            imagen = null;
+                const SizedBox(
+                    width: 10.0), // Espaciado fijo entre los elementos
+                Flexible(
+                  flex: 1, // Este widget tomará 1/3 del espacio disponible
+                  child: ElevatedButton.icon(
+                    onPressed: blockFoto
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  contentPadding: EdgeInsets.all(0),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        InkWell(
+                                          onTap: () async {
+                                            _takePicture();
                                             Navigator.of(context).pop();
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
                                               border: Border(
-                                                  bottom: BorderSide(
-                                                      width: 1,
-                                                      color: Colors.grey))),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
+                                                bottom: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
                                                   child: Text(
-                                                "Quitar foto",
-                                                style: TextStyle(fontSize: 16),
-                                              )),
-                                              Icon(Icons.delete,
-                                                  color: Colors.blue)
-                                            ],
+                                                    "Tomar una foto",
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                ),
+                                                Icon(Icons.camera_alt,
+                                                    color: Colors.blue),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(20),
-                                          decoration:
-                                              BoxDecoration(color: Colors.red),
-                                          child: Row(
-                                            children: [
-                                              Expanded(
+                                        InkWell(
+                                          onTap: () {
+                                            _selectPicture();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
                                                   child: Text(
-                                                "Atras",
-                                                style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.white),
-                                                textAlign: TextAlign.center,
-                                              )),
-                                            ],
+                                                    "Seleccionar una foto",
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                ),
+                                                Icon(Icons.image,
+                                                    color: Colors.blue),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              imagen = null;
+                                              Navigator.of(context).pop();
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    "Quitar foto",
+                                                    style:
+                                                        TextStyle(fontSize: 16),
+                                                  ),
+                                                ),
+                                                Icon(Icons.delete,
+                                                    color: Colors.blue),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.all(20),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    "Atras",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      : null,
-                  icon: const Icon(Icons.camera),
-                  label: Text("Foto"),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 22, vertical: 22),
-                    backgroundColor: Colors.lightBlue[900],
+                                );
+                              },
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.camera),
+                    label: FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: Text(
+                              "Foto",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white), // Tamaño de fuente fijo
+                            ),
+                          ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 22, vertical: 22),
+                      backgroundColor: Colors.lightBlue[900],
+                    ),
                   ),
                 ),
               ],
@@ -588,9 +625,14 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       // Establecer en "predeterminado"
                     },
                     icon: const Icon(Icons.delete_outlined),
-                    label: const Text(
-                      "Limpiar",
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    label: const FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        "Limpiar",
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white), // Tamaño de fuente fijo
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -656,9 +698,14 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       }
                     },
                     icon: const Icon(Icons.send_to_mobile),
-                    label: const Text(
-                      "Enviar",
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    label: const FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        "Enviar",
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white), // Tamaño de fuente fijo
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -682,9 +729,14 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
                       );
                     },
                     icon: const Icon(Icons.power_settings_new),
-                    label: const Text(
-                      "Salir",
-                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    label: const FittedBox(
+                      fit: BoxFit.fitWidth,
+                      child: Text(
+                        "Salir",
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white), // Tamaño de fuente fijo
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(

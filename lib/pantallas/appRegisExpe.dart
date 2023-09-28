@@ -167,7 +167,7 @@ class _AppRegisExpeState extends State<AppRegisExpe> {
         Provider.of<AppvalidarAcceso>(context, listen: false);
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         reverse: true,
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
